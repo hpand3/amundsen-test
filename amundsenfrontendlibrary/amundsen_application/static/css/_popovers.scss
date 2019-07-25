@@ -1,0 +1,63 @@
+// TODO - Override Bootstrap variables and delete this.
+@import 'variables';
+
+.popover {
+  background-color: $gray-base;
+  border: 1px solid $gray-base;
+  color: $text-light;
+  font-size: 12px;
+  padding: 5px;
+}
+.popover-title {
+  background-color: $gray-darker;
+  border-bottom: 1px solid $gray-light;
+  color: $text-light;
+  font-size: 14px;
+  padding: 5px;
+}
+.popover-content {
+  padding: 2px 5px;
+}
+.popover.right .arrow:after {
+  border-right-color: $gray-base;
+}
+.popover.bottom .arrow:after {
+  border-bottom-color: $gray-base;
+}
+.popover.top .arrow:after {
+  border-top-color: $gray-base;
+}
+.popover.left .arrow:after {
+  border-left-color: $gray-base;
+}
+
+.tooltip-inner {
+  padding: 0;
+  border-radius: 3px;
+  background-color: $gray-base;
+}
+
+.tooltip-inner button {
+  height: 36px;
+  width: 96px;
+  font-size: 14px;
+  border-radius: 3px;
+  border: none;
+  background-color: $gray-base;
+  color: $body-bg;
+  font-weight: $font-weight-body-bold;
+  outline: none;
+}
+.tooltip-inner button:hover {
+  color: $text-medium;
+}
+
+.error-tooltip {
+  display: flex;
+  padding: 5px;
+}
+.error-tooltip button {
+  height: 24px;
+  width: 24px;
+  margin: auto;
+}

@@ -1,0 +1,88 @@
+/**
+ The following are used in Amundsen but are not part of Bootstrap.
+ These must be defined here:
+
+  $brand-color-1, $brand-color-2, $brand-color-3, $brand-color-4, $brand-color-5
+
+  $font-family-header, $font-weight-header-regular, $font-weight-header-bold
+  $font-family-body, $font-weight-body-regular, $font-weight-body-semi-bold, $font-weight-body-bold
+
+  $text-dark, $text-medium, $text-light
+
+  $btn-primary-bg-hover, $btn-default-border-hover,
+  $btn-primary-border-hover, $btn-default-bg-hover,
+
+  */
+
+
+// Colors
+$brand-color-1: #A9E1FF !default;
+$brand-color-2: #82D2FF !default;
+$brand-color-3: #3A97D3 !default;
+$brand-color-4: #2277B3 !default;
+$brand-color-5: #09457B !default;
+
+$brand-primary: $brand-color-4 !default;
+
+$gray-base:     #292936 !default;
+$gray-darker:   #63637B !default;
+$gray-dark:     #9191A8 !default;
+$gray:          #ACACC0 !default;
+$gray-light:    #CACAD9 !default;
+$gray-lighter:  #E7E7EF !default;
+$gray-lightest: #F4F4FA !default;
+
+
+// Scaffolding
+$body-bg:    #fff !default;
+// TODO - consider replacing $text-dark with $text-color
+$text-dark: $gray-base !default;
+$text-color: $gray-base !default;
+$text-medium: $gray-darker !default;
+$text-light: $gray-light !default;
+
+
+// Typography
+$font-family-body:           "Open Sans", sans-serif !default;
+$font-weight-body-regular:   400 !default;
+$font-weight-body-semi-bold: 600 !default;
+$font-weight-body-bold:      700 !default;
+
+$font-family-header:         "Roboto", sans-serif !default;
+$font-weight-header-regular: 500 !default;
+$font-weight-header-bold:    700 !default;
+
+$font-family-monospace:       'Menlo-Bold', Menlo, monospace !default;
+$font-family-serif:           Georgia, "Times New Roman", Times, serif !default;
+
+$font-size-small:    12px !default;
+$font-size-base:     14px !default;
+$font-size-large:    16px !default;
+$line-height-small:  1.5 !default;
+$line-height-large:  1.5 !default;
+
+
+// Buttons
+$btn-border-radius-base: 4px;
+
+$btn-primary-bg:           $brand-color-4 !default;
+$btn-primary-bg-hover:     $brand-color-5 !default;
+$btn-primary-border:       transparent !default;
+$btn-primary-border-hover: transparent !default;
+$btn-primary-color:        white !default;
+$btn-primary-color-hover:  white !default;
+
+$btn-default-bg:           white !default;
+$btn-default-bg-hover:     $gray-lightest;
+$btn-default-border:       $gray-light !default;
+$btn-default-border-hover: $gray !default;
+$btn-default-color:        $gray-base !default;
+
+
+// List Group
+$list-group-border:        $gray-light !default;
+$list-group-border-radius: 0 !default;
+
+
+// Labels
+$label-primary-bg: $brand-color-3 !default;
