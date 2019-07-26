@@ -1,21 +1,22 @@
 version: '3'
 services:
   neo4j:
-      image: neo4j:3.3.0
-      container_name: neo4j_amundsen
-      environment:
-        - NEO4J_AUTH=neo4j/test
-      ulimits:
-        nofile:
-          soft: 40000
-          hard: 40000
-      ports:
-          - 7474:7474
-          - 7687:7687
-      volumes:
-          - ./example/docker/neo4j/conf:/conf
-      networks:
-        - amundsennet
+    image: neo4j:3.3.0
+    container_name: neo4j_amundsen
+    environment:
+      - NEO4J_AUTH=neo4j/test
+    ulimits:
+      nofile:
+        soft: 40000
+        hard: 40000
+    ports:
+      - 7474:7474
+      - 7687:7687
+    volumes:
+      - ./neo4j/conf:/conf
+    networks:
+      - amundsennet
+
   elasticsearch:
       image: elasticsearch:6.7.0
       container_name: es_amundsen
@@ -23,6 +24,7 @@ services:
           - 9200:9200
       networks:
         - amundsennet
+
   amundsensearch:
       image: amundsendev/amundsen-search:1.1.1
       container_name: amundsensearch
@@ -34,6 +36,7 @@ services:
         - amundsennet
       environment:
         - PROXY_ENDPOINT=es_amundsen
+
   amundsenmetadata:
       image: amundsendev/amundsen-metadata:1.0.11
       container_name: amundsenmetadata
@@ -45,6 +48,16 @@ services:
         - amundsennet
       environment:
         - PROXY_HOST=bolt://neo4j_amundsen
+
+  amundsendatabuilder:
+      build:
+        context: ./amundsendatabuilder
+      container_name: amundsendatabuilder
+      ports:
+        - 8080:8080
+      networks:
+        - amundsennet
+
   amundsenfrontend:
       build:
         context: ./amundsenfrontendlibrary
