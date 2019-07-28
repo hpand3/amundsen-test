@@ -8,7 +8,7 @@ from airflow import macros  # noqa
 from airflow.operators.python_operator import PythonOperator  # noqa
 from pyhocon import ConfigFactory
 from databuilder.extractor.neo4j_search_data_extractor import Neo4jSearchDataExtractor
-from databuilder.extractor.athena_metadata_extractor import AthenaMetadataExtractor
+from databuilder.extractor.postgres_metadata_extractor import PostgresMetadataExtractor
 from databuilder.extractor.sql_alchemy_extractor import SQLAlchemyExtractor
 from databuilder.publisher.elasticsearch_publisher import ElasticsearchPublisher
 from databuilder.extractor.neo4j_extractor import Neo4jExtractor
@@ -26,7 +26,7 @@ dag_args = {
     # One dagrun at a time
     'max_active_runs': 1,
     # 4AM, 4PM PST
-    'schedule_interval': '0 11 * * *',
+    'schedule_interval': '* * * * *',
     'catchup': False
 }
 
@@ -44,7 +44,7 @@ default_args = {
 }
 
 # NEO4J cluster endpoints
-NEO4J_ENDPOINT = 'bolt://127.0.0.1:7687'
+NEO4J_ENDPOINT = 'bolt://neo4j'
 
 neo4j_endpoint = NEO4J_ENDPOINT
 
@@ -52,43 +52,42 @@ neo4j_user = 'neo4j'
 neo4j_password = 'test'
 
 es = Elasticsearch([
-    {'host': '127.0.0.1'},
+    {'host': 'elasticsearch'},
 ])
 
 # TODO: user provides a list of schema for indexing
-SUPPORTED_SCHEMAS = ['sampledb']
+SUPPORTED_SCHEMAS = ['public']
 # String format - ('schema1', schema2', .... 'schemaN')
 SUPPORTED_SCHEMA_SQL_IN_CLAUSE = "('{schemas}')".format(schemas="', '".join(SUPPORTED_SCHEMAS))
 
-
 OPTIONAL_TABLE_NAMES = ''
-AWS_ACCESS = 'YOUR_ACCESS_KEY'
-AWS_SECRET = 'YOUR_SECRET_KEY'
 
 
 def connection_string():
-    access_key = AWS_ACCESS
-    secret = AWS_SECRET
-    host = 'athena.us-east-1.amazonaws.com'
-    extras = 's3_staging_dir=s3://aws-athena-query-results-032106861074-us-east-1/'
-    return "awsathena+rest://%s:%s@%s:443/?%s" % (access_key, secret, host, extras)
+    user = 'postgres'
+    password = 'secret10'
+    host = 'postgresdb'
+    port = '5432'
+    db = 'postgres'
+    return "postgresql://%s:%s@%s:%s/%s" % (user, password, host, port, db)
 
 
 def create_table_extract_job(**kwargs):
     where_clause_suffix = textwrap.dedent("""
         where table_schema in {schemas}
-    """).format(schemas=SUPPORTED_SCHEMA_SQL_IN_CLAUSE)
+    """)
 
     tmp_folder = '/var/tmp/amundsen/table_metadata'
     node_files_folder = '{tmp_folder}/nodes/'.format(tmp_folder=tmp_folder)
     relationship_files_folder = '{tmp_folder}/relationships/'.format(tmp_folder=tmp_folder)
 
     job_config = ConfigFactory.from_dict({
-        'extractor.athena_metadata.{}'.format(AthenaMetadataExtractor.WHERE_CLAUSE_SUFFIX_KEY):
+        'extractor.postgres_metadata.{}'.format(PostgresMetadataExtractor.WHERE_CLAUSE_SUFFIX_KEY):
             where_clause_suffix,
-        'extractor.athena_metadata.extractor.sqlalchemy.{}'.format(SQLAlchemyExtractor.CONN_STRING):
+        'extractor.postgres_metadata.{}'.format(PostgresMetadataExtractor.USE_CATALOG_AS_CLUSTER_NAME):
+            True,
+        'extractor.postgres_metadata.extractor.sqlalchemy.{}'.format(SQLAlchemyExtractor.CONN_STRING):
             connection_string(),
-        'extractor.athena_metadata.{}'.format(AthenaMetadataExtractor.CATALOG_KEY): "'AwsDataCatalog'",
         'loader.filesystem_csv_neo4j.{}'.format(FsNeo4jCSVLoader.NODE_DIR_PATH):
             node_files_folder,
         'loader.filesystem_csv_neo4j.{}'.format(FsNeo4jCSVLoader.RELATION_DIR_PATH):
@@ -107,8 +106,7 @@ def create_table_extract_job(**kwargs):
             'unique_tag',  # should use unique tag here like {ds}
     })
     job = DefaultJob(conf=job_config,
-                     task=DefaultTask(extractor=AthenaMetadataExtractor(), loader=FsNeo4jCSVLoader(),
-                                      transformer=NoopTransformer()),
+                     task=DefaultTask(extractor=PostgresMetadataExtractor(), loader=FsNeo4jCSVLoader()),
                      publisher=Neo4jCsvPublisher())
     job.launch()
 
@@ -159,14 +157,13 @@ def create_es_publisher_sample_job():
 
 
 with DAG('amundsen_databuilder', default_args=default_args, **dag_args) as dag:
-    create_table_extract_job()
-    # create_table_extract_job = PythonOperator(
-    #     task_id='create_table_extract_job',
-    #     python_callable=create_table_extract_job
-    # )
+
+    create_table_extract_job = PythonOperator(
+        task_id='create_table_extract_job',
+        python_callable=create_table_extract_job
+    )
 
     create_es_index_job = PythonOperator(
         task_id='create_es_publisher_sample_job',
         python_callable=create_es_publisher_sample_job
     )
-    create_es_publisher_sample_job()

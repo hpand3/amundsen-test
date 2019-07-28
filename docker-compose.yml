@@ -73,5 +73,15 @@ services:
         - SEARCHSERVICE_BASE=http://amundsensearch:5000
         - METADATASERVICE_BASE=http://amundsenmetadata:5000
 
+  postgresdb:
+    image: postgres:11.4
+    container_name: postgresdb
+    ports:
+      - 5432:5432
+    networks:
+      - amundsennet
+    environment:
+      - POSTGRES_PASSWORD=secret10
+
 networks:
   amundsennet:
